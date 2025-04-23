@@ -30,18 +30,21 @@ const Challenge = ({ user }) => {
         if (!game || !ticketPrice) {
             alert('Please fill in all fields.');
             return;
-        }        try {
+        }
+        try {
             await addDoc(collection(db, 'scrims'), {
                 creator: user.uid,
                 game,
                 ticketPrice: parseInt(ticketPrice),
                 participants: [user.uid],
                 status: 'pending',
-                timestamp: serverTimestamp()
-        });
-
-        setGame('');
-        setTicketPrice('');
+                timestamp: serverTimestamp(),
+            });
+            setGame('');
+            setTicketPrice('');
+        } catch (error) {
+            alert('Error creating scrim: ' + error.message);
+        }
     };
 
     const handleJoinScrim = async (scrimId, ticketPrice) => {
@@ -61,23 +64,22 @@ const Challenge = ({ user }) => {
                             participants: arrayUnion(user.uid),
                             status: "active"
                         });
-                        alert("Scrim joined!");
+                    alert("Scrim joined!");
                     } catch (error) {
-                         alert('Error joining scrim: ' + error.message);
-                    }
+                        alert('Error joining scrim: ' + error.message);
+                }
                 }
             };
 
             const paymentObject = new window.Razorpay(options);
             paymentObject.open();
         } catch (error) {
-            console.error('Error during payment:', error);
-            alert('There was an error processing your payment.');
-        }    
+            alert('Error during payment: ' + error.message);
+        }
     };
-
-    return (
+    return loading ? <div>Loading...</div> : (
         <div className="p-4">
+
             <Card className="mb-4">
                 <h3 className="font-bold">Create a Challenge</h3>
                 <div className="mb-4">
@@ -119,7 +121,7 @@ const Challenge = ({ user }) => {
                 </Card>
             ))}
         </div>
-    );    return loading ? <div>Loading...</div> :(
+    )
 
 };
 
