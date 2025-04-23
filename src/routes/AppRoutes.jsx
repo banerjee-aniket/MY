@@ -36,26 +36,29 @@ const Leaderboard = () => (
 
 const Premium = ({ user, setIsPremium }) => {
     const handleSubscribe = async () => {
-        const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/payment`, { amount: 99 });
-        const options = {
-            key: import.meta.env.VITE_RAZORPAY_KEY,
-            amount: data.amount,
-           
-            currency: 'INR',
-            name: 'GameLinked Premium',
-            description: 'Premium Subscription',
-            order_id: data.id,
-            handler: async () => {
+        try {
+            const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/payment`, { amount: 99 });
+            const options = {
+                key: import.meta.env.VITE_RAZORPAY_KEY,
+                amount: data.amount,
                
-                const userRef = doc(db, 'users', user.uid);
-             
-                await updateDoc(userRef, { isPremium: true });
-                setIsPremium(true);
-                alert('Subscribed to Premium!');
+                currency: 'INR',
+                name: 'GameLinked Premium',
+                description: 'Premium Subscription',
+                order_id: data.id,
+                handler: async () => {
+                   
+                    const userRef = doc(db, 'users', user.uid);
+                 
+                    await updateDoc(userRef, { isPremium: true });
+                    setIsPremium(true);
+                    alert('Subscribed to Premium!');
+                }
+            };
+            const paymentObject = new window.Razorpay(options);
+            paymentObject.open();
             }
-        };
-        const paymentObject = new window.Razorpay(options);
-        paymentObject.open();
+        catch(error){ alert('Error: '+ error.message)}
     };
 
     return (
@@ -82,47 +85,52 @@ const Messages = ({ user }) => {
     const [chatMessages, setChatMessages] = useState([]);
 
     useEffect(() => {
-        const chatsRef = ref(database, 'chats');
-        const query = orderByChild(chatsRef,`participants/${user.uid}`);
-        const unsubscribe = onValue(chatsRef, (snapshot) => {
-          const chats = [];
-          snapshot.forEach((child) => {
-            const chat = {
-              id: child.key,
-              ...child.val(),
-
-            };
-            chats.push(chat);
-          });
-          setMessages(chats);
-            });
-
-        return () => unsubscribe();
+        try{
+            const chatsRef = ref(database, 'chats');
+            const query = orderByChild(chatsRef,`participants/${user.uid}`);
+            const unsubscribe = onValue(chatsRef, (snapshot) => {
+              const chats = [];
+              snapshot.forEach((child) => {
+                const chat = {
+                  id: child.key,
+                  ...child.val(),
+    
+                };
+                chats.push(chat);
+              });
+              setMessages(chats);
+                });
+    
+            return () => unsubscribe();
+        } catch(error){ alert('Error: '+ error.message)}
     }, [user]);
 
-    useEffect(() => {
-        if (!selectedChat) return;
-        const messageRef = ref(database, `messages/${selectedChat.id}`);
-        const unsubscribe = onValue(messageRef, (snapshot) => {
-          const msgs = [];
-          snapshot.forEach(child => {
-            msgs.push(child.val());
-          });
-          setChatMessages(msgs);
-        });
-        return () => unsubscribe();
+    useEffect(() => {try{
+            if (!selectedChat) return;
+            const messageRef = ref(database, `messages/${selectedChat.id}`);
+            const unsubscribe = onValue(messageRef, (snapshot) => {
+              const msgs = [];
+              snapshot.forEach(child => {
+                msgs.push(child.val());
+              });
+              setChatMessages(msgs);
+            });
+            return () => unsubscribe();
+        } catch(error){ alert('Error: '+ error.message)}
     }, [selectedChat]);
    
 
     const handleSendMessage = async () => {
-        const message = document.getElementById('messageInput').value;
-        if (!selectedChat) return;
-         await push(ref(database,`messages/${selectedChat.id}`),{
-            sender: user.uid,
-            content: message,
-            timestamp: Date.now()
-        });
-        document.getElementById('messageInput').value = '';
+        try{
+            const message = document.getElementById('messageInput').value;
+            if (!selectedChat) return;
+             await push(ref(database,`messages/${selectedChat.id}`),{
+                sender: user.uid,
+                content: message,
+                timestamp: Date.now()
+            });
+            document.getElementById('messageInput').value = '';
+        } catch(error){ alert('Error: '+ error.message)}
     };
 
     return (

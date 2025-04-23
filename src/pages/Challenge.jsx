@@ -1,36 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, onSnapshot, arrayUnion, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, getDocs, addDoc, updateDoc, arrayUnion, serverTimestamp } from 'firebase/firestore';
 import axios from 'axios';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import { db } from '../firebase.js';
-import firebase from 'firebase/compat/app';
 
 const Challenge = ({ user }) => {
     const [scrims, setScrims] = useState([]);
-     const [game, setGame] = useState('');
-     const [ticketPrice, setTicketPrice] = useState('');
+    const [game, setGame] = useState('');
+    const [ticketPrice, setTicketPrice] = useState('');
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = onSnapshot(collection(db, 'scrims'), (snapshot) => {
-            setScrims(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-        });
-        return () => unsubscribe(); // Cleanup on component unmount
+        const fetchScrims = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, 'scrims'));
+                setScrims(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            } catch (error) {
+                alert('Error fetching scrims: ' + error.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchScrims();
     }, []);
 
     const handleCreateScrim = async () => {
         if (!game || !ticketPrice) {
             alert('Please fill in all fields.');
             return;
-        }
-
-        await addDoc(collection(db, 'scrims'), {
-            creator: user.uid,
-            game,
-            ticketPrice: parseInt(ticketPrice),
-            participants: [user.uid],
-            status: 'pending',
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }        try {
+            await addDoc(collection(db, 'scrims'), {
+                creator: user.uid,
+                game,
+                ticketPrice: parseInt(ticketPrice),
+                participants: [user.uid],
+                status: 'pending',
+                timestamp: serverTimestamp()
         });
 
         setGame('');
@@ -49,11 +56,15 @@ const Challenge = ({ user }) => {
                 description: "Entry Fee for Scrim",
                 order_id: data.id,
                 handler: async () => {
-                    await updateDoc(doc(db, 'scrims', scrimId), {
-                        participants: arrayUnion(user.uid),
-                        status: "active"
-                    });
-                    alert("Scrim joined!");
+                    try {
+                        await updateDoc(doc(db, 'scrims', scrimId), {
+                            participants: arrayUnion(user.uid),
+                            status: "active"
+                        });
+                        alert("Scrim joined!");
+                    } catch (error) {
+                         alert('Error joining scrim: ' + error.message);
+                    }
                 }
             };
 
@@ -62,7 +73,7 @@ const Challenge = ({ user }) => {
         } catch (error) {
             console.error('Error during payment:', error);
             alert('There was an error processing your payment.');
-        }
+        }    
     };
 
     return (
@@ -108,7 +119,8 @@ const Challenge = ({ user }) => {
                 </Card>
             ))}
         </div>
-    );
+    );    return loading ? <div>Loading...</div> :(
+
 };
 
 export default Challenge;

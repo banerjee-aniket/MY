@@ -1,10 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import axios from 'axios';
-import { getFirestore, doc, updateDoc } from 'firebase/firestore';
-import { getDatabase, ref, orderByChild, onValue, push } from 'firebase/database';
-import { app, database, db } from '../firebase'
-import { getAuth } from 'firebase/auth';
+
 
 import Home from '../pages/Home';
 import Profile from '../pages/Profile';

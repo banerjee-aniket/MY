@@ -1,20 +1,16 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { initializeApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { getFirestore, collection, doc, setDoc } from 'firebase/firestore';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 import Card from '../components/common/Card';
-import { app, auth, db } from '../firebase';
+import { auth, db } from '../firebase';
+import Button from '../components/common/Button';
 
 const Signup = () => {
     const navigate = useNavigate();
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
 
     const handleRegister = async () => {
-        const email = document.getElementById('email').value;
+         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         try {
             const { user } = await createUserWithEmailAndPassword(auth, email, password);

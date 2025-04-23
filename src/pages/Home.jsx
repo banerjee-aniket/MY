@@ -1,9 +1,11 @@
 import React from 'react';
 
-const Footer = () => (
-    <footer className="bg-purple-800 text-white p-4 text-center">
-        <p>&copy; 2025 GameLinked by Exelion</p>
-    </footer>
-);
+const Home = () => (
+    <div className="flex flex-col items-center justify-center h-full">
+        <h1 className="text-4xl font-bold mb-4 text-purple-800">Home</h1>
+        <p className="text-lg text-gray-700">Welcome to GameLinked</p>
+    </div>
+)
 
-export default Footer;
+
+export default Home;

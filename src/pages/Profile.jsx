@@ -1,29 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { doc, getDoc } from 'firebase/firestore'; // Import specific functions from firebase/firestore
+import { doc, getDoc } from 'firebase/firestore';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
-import { auth, storage, db, database } from "../firebase";
+import { db } from "../firebase";
 
 const Profile = ({ user }) => {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
+
     useEffect(() => {
-        if (user) {
-            const userRef = doc(db, 'users', user.uid);
+        const fetchProfile = async () => {
+            if (user) {
+                try {
+                    const userRef = doc(db, 'users', user.uid);
+                    const docSnap = await getDoc(userRef);
 
-            getDoc(userRef).then((docSnap) => {
-                if (docSnap.exists()) {
-                    setProfile(docSnap.data());
+                    if (docSnap.exists()) {
+                        setProfile(docSnap.data());
+                    } else {
+                        alert('User not found');
+                    }
+                } catch (error) {
+                    alert('Error fetching profile: ' + error.message);
+                } finally {
+                    setLoading(false);
                 }
-            }).finally(() => setLoading(false));
-        } else {
-            setLoading(false)
-        }
-    }, [user]);
-     useEffect(() => {
-    }, []);
+            } else {
+                setLoading(false);
+            }
+        };
 
-    return loading ? <div>Loading...</div> :(
+        fetchProfile();
+    }, [user]);
+
+    return loading ? <div>Loading...</div> : (
         <div className="p-4">
             <Card className="mb-4">
                 <div className="flex items-center">
