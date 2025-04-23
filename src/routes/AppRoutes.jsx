@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import axios from 'axios';
-import firebase from 'firebase/app';
-import 'firebase/auth';
-import 'firebase/firestore';
-import 'firebase/database';
+import { initializeApp} from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore,  doc, updateDoc } from 'firebase/firestore';
+import { getDatabase, ref,  onValue, push,orderByChild} from 'firebase/database';
+import {firebaseConfig} from '../firebase'
+
 import Home from '../pages/Home';
 import Profile from '../pages/Profile';
 import Challenge from '../pages/Challenge';
@@ -40,12 +42,18 @@ const Premium = ({ user, setIsPremium }) => {
         const options = {
             key: import.meta.env.VITE_RAZORPAY_KEY,
             amount: data.amount,
+           
             currency: 'INR',
             name: 'GameLinked Premium',
             description: 'Premium Subscription',
             order_id: data.id,
             handler: async () => {
-                await firebase.firestore().collection('users').doc(user.uid).update({ isPremium: true });
+                 const app = initializeApp(firebaseConfig);
+                const db = getFirestore(app);
+              
+                const userRef = doc(db, 'users', user.uid);
+             
+                await updateDoc(userRef, { isPremium: true });
                 setIsPremium(true);
                 alert('Subscribed to Premium!');
             }
@@ -73,40 +81,51 @@ const Premium = ({ user, setIsPremium }) => {
 };
 
 const Messages = ({ user }) => {
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
     const [messages, setMessages] = useState([]);
     const [selectedChat, setSelectedChat] = useState(null);
     const [chatMessages, setChatMessages] = useState([]);
 
     useEffect(() => {
-        firebase.database().ref('chats')
-            .orderByChild('participants/' + user.uid)
-            .equalTo(true)
-            .on('value', snapshot => {
-                const chats = [];
-                snapshot.forEach(child => {
-                    chats.push({ id: child.key, ...child.val() });
-                });
-                setMessages(chats);
+        const chatsRef = ref(database, 'chats');
+        const query = orderByChild(chatsRef,`participants/${user.uid}`);
+        const unsubscribe = onValue(chatsRef, (snapshot) => {
+          const chats = [];
+          snapshot.forEach((child) => {
+            const chat = {
+              id: child.key,
+              ...child.val(),
+
+            };
+            chats.push(chat);
+          });
+          setMessages(chats);
             });
+
+        return () => unsubscribe();
     }, [user]);
 
     useEffect(() => {
-        if (selectedChat) {
-            firebase.database().ref(`messages/${selectedChat.id}`)
-                .on('value', snapshot => {
-                    const msgs = [];
-                    snapshot.forEach(child => {
-                        msgs.push(child.val());
-                    });
-                    setChatMessages(msgs);
-                });
-        }
+        if (!selectedChat) return;
+        const messageRef = ref(database, `messages/${selectedChat.id}`);
+        const unsubscribe = onValue(messageRef, (snapshot) => {
+          const msgs = [];
+          snapshot.forEach(child => {
+            msgs.push(child.val());
+          });
+          setChatMessages(msgs);
+        });
+        return () => unsubscribe();
     }, [selectedChat]);
+   
+    
+
 
     const handleSendMessage = async () => {
         const message = document.getElementById('messageInput').value;
         if (!selectedChat) return;
-        await firebase.database().ref(`messages/${selectedChat.id}`).push({
+         await push(ref(database,`messages/${selectedChat.id}`),{
             sender: user.uid,
             content: message,
             timestamp: Date.now()
@@ -117,6 +136,7 @@ const Messages = ({ user }) => {
     return (
         <div className="p-4">
             <h2 className="text-xl font-bold mb-4">Messages</h2>
+            
             <div className="flex">
                 <div className="w-1/3 bg-white rounded-lg shadow-lg p-4 mr-4">
                     {messages.map(chat => (
@@ -125,7 +145,7 @@ const Messages = ({ user }) => {
                             onClick={() => setSelectedChat(chat)}
                             className="p-2 border-b cursor-pointer"
                         >
-                            <p>{Object.keys(chat.participants).find(id => id !== user.uid)}</p>
+                           {Object.keys(chat.participants).find(id => id !== user.uid) && <p>{Object.keys(chat.participants).find(id => id !== user.uid)}</p> }
                         </div>
                     ))}
                 </div>
@@ -136,7 +156,7 @@ const Messages = ({ user }) => {
                             <div className="h-64 overflow-y-scroll mb-4">
                                 {chatMessages.map((msg, index) => (
                                     <div key={index} className={`p-2 ${msg.sender === user.uid ? 'text-right' : ''}`}>
-                                        <p className={`inline-block p-2 rounded-lg ${msg.sender === user.uid ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}>
+                                             <p className={`inline-block p-2 rounded-lg ${msg.sender === user.uid ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}>
                                             {msg.content}
                                         </p>
                                     </div>
@@ -153,6 +173,7 @@ const Messages = ({ user }) => {
                 </div>
             </div>
         </div>
+        
     );
 };
 

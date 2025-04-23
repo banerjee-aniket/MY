@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import firebase from 'firebase/app';
-import 'firebase/auth';
-import 'firebase/firestore';
-import 'firebase/database';
+import { initializeApp,  } from 'firebase/app';
+import { getAuth, onAuthStateChanged, } from 'firebase/auth';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
+
+
 import AppRoutes from './routes/AppRoutes';
 import './styles/index.css';
 
@@ -16,26 +17,30 @@ const firebaseConfig = {
     appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
+const app = initializeApp(firebaseConfig);
+
 
 const App = () => {
-    const [user, setUser] = useState(null);
+     const [user, setUser] = useState(null);
     const [isPremium, setIsPremium] = useState(false);
 
-    const db = firebase.firestore();
+    const db = getFirestore(app);
+    const auth = getAuth(app);
 
     useEffect(() => {
-        const unsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setUser(user);
             if (user) {
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                if (userDoc.exists) {
+                const userRef = doc(db, 'users', user.uid);
+                getDoc(userRef).then((userDoc)=>{
+                  if (userDoc.exists()) {
                     setIsPremium(userDoc.data().isPremium || false);
-                }
+                  }
+                })
+
             }
         });
+
         return () => unsubscribe();
     }, []);
 

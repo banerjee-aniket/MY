@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Route, Routes, BrowserRouter } from 'react-router-dom';
 import axios from 'axios';
-import firebase from 'firebase/app'; // Corrected import
-import 'firebase/auth'; // Import Auth module
-import 'firebase/firestore'; // Import Firestore module
-import 'firebase/database'; // Import Realtime Database module
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore, collection, doc, setDoc, updateDoc, getDocs } from 'firebase/firestore';
+import { getDatabase, ref, orderByChild, equalTo, onValue, push } from 'firebase/database';
+
+import { firebaseConfig } from '../firebase';
+
+
 import Home from '../pages/Home';
 import Profile from '../pages/Profile';
 import Challenge from '../pages/Challenge';
@@ -73,15 +77,18 @@ const Premium = ({ user, setIsPremium }) => {
 };
 
 const Messages = ({ user }) => {
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const database = getDatabase(app);
     const [messages, setMessages] = useState([]);
     const [selectedChat, setSelectedChat] = useState(null);
     const [chatMessages, setChatMessages] = useState([]);
 
     useEffect(() => {
-        firebase.database().ref('chats')
-            .orderByChild('participants/' + user.uid)
-            .equalTo(true)
-            .on('value', snapshot => {
+        const chatsRef = ref(database, 'chats');
+        const query = orderByChild(ref(database, 'chats/participants/' + user.uid));
+        const chatQuery = equalTo(chatsRef,true);
+        onValue(query, snapshot => {
                 const chats = [];
                 snapshot.forEach(child => {
                     chats.push({ id: child.key, ...child.val() });
@@ -89,28 +96,38 @@ const Messages = ({ user }) => {
                 setMessages(chats);
             });
     }, [user]);
-
+    
     useEffect(() => {
+        let unsubscribe = null;
         if (selectedChat) {
-            firebase.database().ref(`messages/${selectedChat.id}`)
-                .on('value', snapshot => {
-                    const msgs = [];
-                    snapshot.forEach(child => {
-                        msgs.push(child.val());
-                    });
-                    setChatMessages(msgs);
+            const messagesRef = ref(database, `messages/${selectedChat.id}`);
+            unsubscribe = onValue(messagesRef, (snapshot) => {
+                const msgs = [];
+                snapshot.forEach(childSnapshot => {
+                    msgs.push(childSnapshot.val());
                 });
+                setChatMessages(msgs);
+            });
         }
-    }, [selectedChat]);
+        
+        return () => {
+            if(unsubscribe) {
+                unsubscribe();
+                console.log('unsubscribed')
+            }
+        };
+    
+    
+    }, [selectedChat, database]);
 
     const handleSendMessage = async () => {
         const message = document.getElementById('messageInput').value;
         if (!selectedChat) return;
-        await firebase.database().ref(`messages/${selectedChat.id}`).push({
+        await push(ref(database,`messages/${selectedChat.id}`),{
             sender: user.uid,
             content: message,
             timestamp: Date.now()
-        });
+        })
         document.getElementById('messageInput').value = '';
     };
 
@@ -166,7 +183,7 @@ const AppRoutes = ({ user, setIsPremium, isPremium }) => {
     );
 
     return (
-        <Router>
+        <BrowserRouter>
             <AdBanner />
             <Header />
             <Routes>
@@ -183,7 +200,7 @@ const AppRoutes = ({ user, setIsPremium, isPremium }) => {
             </Routes>
             {user && <Navbar />}
             <Footer />
-        </Router>
+        </BrowserRouter>
     );
 };
 

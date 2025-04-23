@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import firebase from 'firebase/app';
-import 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, onSnapshot, arrayUnion, serverTimestamp } from 'firebase/firestore';
+import { firebaseConfig } from '../firebase.js';
 import axios from 'axios';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 
 const Challenge = ({ user }) => {
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
     const [scrims, setScrims] = useState([]);
-    const [game, setGame] = useState('');
-    const [ticketPrice, setTicketPrice] = useState('');
+     const [game, setGame] = useState('');
+     const [ticketPrice, setTicketPrice] = useState('');
 
     useEffect(() => {
-        const unsubscribe = firebase.firestore().collection('scrims')
-            .onSnapshot(snapshot => {
-                setScrims(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-            });
-        
+        const unsubscribe = onSnapshot(collection(db, 'scrims'), snapshot => {
+            setScrims(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
         return () => unsubscribe(); // Cleanup on component unmount
     }, []);
 
@@ -25,7 +26,7 @@ const Challenge = ({ user }) => {
             return;
         }
 
-        await firebase.firestore().collection('scrims').add({
+        await addDoc(collection(db, 'scrims'), {
             creator: user.uid,
             game,
             ticketPrice: parseInt(ticketPrice),
@@ -41,20 +42,20 @@ const Challenge = ({ user }) => {
     const handleJoinScrim = async (scrimId, ticketPrice) => {
         try {
             const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/payment`, { amount: ticketPrice });
-            
+
             const options = {
                 key: import.meta.env.VITE_RAZORPAY_KEY,
                 amount: data.amount,
                 currency: 'INR',
-                name: 'GameLinked Scrim',
-                description: 'Entry Fee for Scrim',
+                name: "GameLinked Scrim",
+                description: "Entry Fee for Scrim",
                 order_id: data.id,
                 handler: async () => {
-                    await firebase.firestore().collection('scrims').doc(scrimId).update({
-                        participants: firebase.firestore.FieldValue.arrayUnion(user.uid),
-                        status: 'active'
+                    await updateDoc(doc(db, 'scrims', scrimId), {
+                        participants: arrayUnion(user.uid),
+                        status: "active"
                     });
-                    alert('Scrim joined!');
+                    alert("Scrim joined!");
                 }
             };
 

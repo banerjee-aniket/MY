@@ -1,23 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import firebase from 'firebase/app';
-import 'firebase/firestore';
+import { initializeApp } from 'firebase/app'; // Import specific functions from firebase/app
+import { getFirestore, doc, getDoc } from 'firebase/firestore'; // Import specific functions from firebase/firestore
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
+import { firebaseConfig } from '../firebase.js';
 
 const Profile = ({ user }) => {
     const [profile, setProfile] = useState(null);
-
+    const [loading, setLoading] = useState(true);
     useEffect(() => {
+        const app = initializeApp(firebaseConfig);
+       
+    
+        const db = getFirestore(app);
+
         if (user) {
-            firebase.firestore().collection('users').doc(user.uid).get().then(doc => {
-                if (doc.exists) setProfile(doc.data());
-            });
+            const userRef = doc(db, 'users', user.uid);
+
+            getDoc(userRef).then((docSnap) => {
+                if (docSnap.exists()) {
+                    setProfile(docSnap.data());
+                }
+            }).finally(() => setLoading(false));
+        } else {
+            setLoading(false)
         }
     }, [user]);
+     useEffect(() => {
+    }, []);
 
-    if (!profile) return <div>Loading...</div>;
-
-    return (
+    return loading ? <div>Loading...</div> :(
         <div className="p-4">
             <Card className="mb-4">
                 <div className="flex items-center">

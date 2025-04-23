@@ -1,26 +1,37 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import firebase from 'firebase/app';
-import 'firebase/auth';
+import { initializeApp } from 'firebase/app';
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { getFirestore, collection, doc, setDoc } from 'firebase/firestore';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
+import { firebaseConfig } from '../firebase';
 
 const Signup = () => {
     const navigate = useNavigate();
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
     const handleRegister = async () => {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         try {
-            const { user } = await firebase.auth().createUserWithEmailAndPassword(email, password);
-            await firebase.firestore().collection('users').doc(user.uid).set({
-                displayName: email.split('@')[0],
-                bio: 'Gamer',
-                games: [],
-                stats: { kd: 0, winRate: 0, matches: 0 },
-                clips: [],
-                points: 0,
-                isPremium: false
+            const { user } = await createUserWithEmailAndPassword(auth, email, password);
+            const userDocRef = doc(db, 'users', user.uid);
+            await setDoc(userDocRef, {
+              displayName: email.split('@')[0],
+              bio: 'Gamer',
+              games: [],
+              stats: {
+                kd: 0,
+                winRate: 0,
+                matches: 0,
+              },
+              clips: [],
+              points: 0,
+              isPremium: false,
             });
             navigate('/feed');
         } catch (error) {
