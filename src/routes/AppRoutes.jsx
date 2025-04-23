@@ -1,5 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import axios from 'axios';
+import firebase from 'firebase/app';
+import 'firebase/auth';
+import 'firebase/firestore';
+import 'firebase/database';
 import Home from '../pages/Home';
 import Profile from '../pages/Profile';
 import Challenge from '../pages/Challenge';
@@ -29,7 +34,7 @@ const Leaderboard = () => (
     </div>
 );
 
-const Premium = ({ setIsPremium }) => {
+const Premium = ({ user, setIsPremium }) => {
     const handleSubscribe = async () => {
         const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/payment`, { amount: 99 });
         const options = {
@@ -172,7 +177,7 @@ const AppRoutes = ({ user, setIsPremium, isPremium }) => {
                 <Route path="/challenge" element={<Challenge user={user} />} />
                 <Route path="/feed" element={<Feed user={user} />} />
                 <Route path="/leaderboard" element={<Leaderboard />} />
-                <Route path="/premium" element={<Premium setIsPremium={setIsPremium} />} />
+                <Route path="/premium" element={<Premium user={user} setIsPremium={setIsPremium} />} />
                 <Route path="/messages" element={<Messages user={user} />} />
                 <Route path="/" element={<Login />} />
             </Routes>

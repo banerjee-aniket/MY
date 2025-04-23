@@ -3,7 +3,7 @@ import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore';
 import 'firebase/database';
-import AppRoutes from './routes/App-1/AppRoutes';
+import AppRoutes from './routes/AppRoutes';
 import './styles/index.css';
 
 // Firebase Config from environment variables
