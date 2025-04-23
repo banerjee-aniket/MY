@@ -1,0 +1,52 @@
+[debug] [2025-04-23T13:16:07.241Z] ----------------------------------------------------------------------
+[debug] [2025-04-23T13:16:07.244Z] Command:       /nix/store/ixbb20farqh1f4fqbmsn6b1ixn8mc8ij-nodejs-20.18.1/bin/node /home/user/.global_modules/bin/firebase deploy
+[debug] [2025-04-23T13:16:07.245Z] CLI Version:   14.2.0
+[debug] [2025-04-23T13:16:07.245Z] Platform:      linux
+[debug] [2025-04-23T13:16:07.245Z] Node Version:  v20.18.1
+[debug] [2025-04-23T13:16:07.245Z] Time:          Wed Apr 23 2025 13:16:07 GMT+0000 (Coordinated Universal Time)
+[debug] [2025-04-23T13:16:07.245Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-04-23T13:16:07.729Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-04-23T13:16:07.730Z] > authorizing via signed-in user (aniketbanerjee12233@gmail.com)
+[debug] [2025-04-23T13:16:07.730Z] [iam] checking project gamelinked-a026e for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-04-23T13:16:07.731Z] Checked if tokens are valid: true, expires at: 1745417176928
+[debug] [2025-04-23T13:16:07.732Z] Checked if tokens are valid: true, expires at: 1745417176928
+[debug] [2025-04-23T13:16:07.733Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/gamelinked-a026e:testIamPermissions [none]
+[debug] [2025-04-23T13:16:07.733Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/gamelinked-a026e:testIamPermissions x-goog-quota-user=projects/gamelinked-a026e
+[debug] [2025-04-23T13:16:07.734Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/gamelinked-a026e:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-04-23T13:16:08.629Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/gamelinked-a026e:testIamPermissions 200
+[debug] [2025-04-23T13:16:08.630Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/gamelinked-a026e:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-04-23T13:16:08.631Z] Checked if tokens are valid: true, expires at: 1745417176928
+[debug] [2025-04-23T13:16:08.631Z] Checked if tokens are valid: true, expires at: 1745417176928
+[debug] [2025-04-23T13:16:08.633Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/gamelinked-a026e [none]
+[debug] [2025-04-23T13:16:08.878Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/gamelinked-a026e 200
+[debug] [2025-04-23T13:16:08.878Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/gamelinked-a026e {"projectId":"gamelinked-a026e","projectNumber":"10763280638","displayName":"GAMELINKED","name":"projects/gamelinked-a026e","resources":{"hostingSite":"gamelinked-a026e"},"state":"ACTIVE","etag":"1_3a20e2fc-962e-410a-9d86-9e194c27d5e7"}
+[debug] [2025-04-23T13:16:11.011Z] Checked if tokens are valid: true, expires at: 1745417176928
+[debug] [2025-04-23T13:16:11.012Z] Checked if tokens are valid: true, expires at: 1745417176928
+[debug] [2025-04-23T13:16:11.012Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/gamelinked-a026e/sites pageToken=&pageSize=10
+[debug] [2025-04-23T13:16:11.352Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/gamelinked-a026e/sites 200
+[debug] [2025-04-23T13:16:11.352Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/gamelinked-a026e/sites {"sites":[{"name":"projects/gamelinked-a026e/sites/gamelinked-a026e","defaultUrl":"https://gamelinked-a026e.web.app","appId":"1:10763280638:web:edc12cab0d04c7d01005af","type":"DEFAULT_SITE"}]}
+[debug] [2025-04-23T13:16:11.353Z] Checked if tokens are valid: true, expires at: 1745417176928
+[debug] [2025-04-23T13:16:11.353Z] Checked if tokens are valid: true, expires at: 1745417176928
+[debug] [2025-04-23T13:16:11.354Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:10763280638:web:edc12cab0d04c7d01005af/config [none]
+[debug] [2025-04-23T13:16:11.838Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:10763280638:web:edc12cab0d04c7d01005af/config 200
+[debug] [2025-04-23T13:16:11.839Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:10763280638:web:edc12cab0d04c7d01005af/config {"projectId":"gamelinked-a026e","appId":"1:10763280638:web:edc12cab0d04c7d01005af","storageBucket":"gamelinked-a026e.firebasestorage.app","apiKey":"AIzaSyCKj8wQXEdbLv48iB5SX37q-mNqBZ_YO3M","authDomain":"gamelinked-a026e.firebaseapp.com","messagingSenderId":"10763280638","measurementId":"G-TQS8SHTC4B"}
+[info] 
+   Thank you for trying our experimental support for Vite on Firebase Hosting.
+   While this integration is maintained by Googlers it is not a supported Firebase product.
+   Issues filed on GitHub will be addressed on a best-effort basis by maintainers and other community members.
+
+   Documentation: https://firebase.google.com/docs/hosting/frameworks/frameworks-overview
+   File a bug: https://github.com/firebase/firebase-tools/issues/new?template=bug_report.md
+   Submit a feature request: https://github.com/firebase/firebase-tools/issues/new?template=feature_request.md
+
+   We'd love to learn from you. Express your interest in helping us shape the future of Firebase Hosting: https://goo.gle/41enW5X
+
+[debug] [2025-04-23T13:16:25.531Z] Could not resolve "./utils/ErrorBoundary" from "src/App.jsx"
+file: /home/user/MY/src/App.jsx
+    at getRollupError (file:///home/user/MY/node_modules/rollup/dist/es/shared/parseAst.js:397:41)
+    at error (file:///home/user/MY/node_modules/rollup/dist/es/shared/parseAst.js:393:42)
+    at ModuleLoader.handleInvalidResolvedId (file:///home/user/MY/node_modules/rollup/dist/es/shared/node-entry.js:21328:24)
+    at file:///home/user/MY/node_modules/rollup/dist/es/shared/node-entry.js:21288:26
+[error] 
+[error] Error: An unexpected error has occurred.
