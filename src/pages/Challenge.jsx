@@ -1,20 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, doc, getDoc, addDoc, updateDoc, onSnapshot, arrayUnion, serverTimestamp } from 'firebase/firestore';
-import { firebaseConfig } from '../firebase.js';
 import axios from 'axios';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
+import { db } from '../firebase.js';
+import firebase from 'firebase/compat/app';
 
 const Challenge = ({ user }) => {
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
     const [scrims, setScrims] = useState([]);
      const [game, setGame] = useState('');
      const [ticketPrice, setTicketPrice] = useState('');
 
     useEffect(() => {
-        const unsubscribe = onSnapshot(collection(db, 'scrims'), snapshot => {
+        const unsubscribe = onSnapshot(collection(db, 'scrims'), (snapshot) => {
             setScrims(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         });
         return () => unsubscribe(); // Cleanup on component unmount

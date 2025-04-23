@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import axios from 'axios';
-import { initializeApp} from 'firebase/app';
-import { getAuth } from 'firebase/auth';
 import { getFirestore,  doc, updateDoc } from 'firebase/firestore';
 import { getDatabase, ref,  onValue, push,orderByChild} from 'firebase/database';
-import {firebaseConfig} from '../firebase'
-
+import {app,database, db} from '../firebase'
+ 
 import Home from '../pages/Home';
 import Profile from '../pages/Profile';
 import Challenge from '../pages/Challenge';
@@ -48,9 +46,7 @@ const Premium = ({ user, setIsPremium }) => {
             description: 'Premium Subscription',
             order_id: data.id,
             handler: async () => {
-                 const app = initializeApp(firebaseConfig);
-                const db = getFirestore(app);
-              
+               
                 const userRef = doc(db, 'users', user.uid);
              
                 await updateDoc(userRef, { isPremium: true });
@@ -81,8 +77,6 @@ const Premium = ({ user, setIsPremium }) => {
 };
 
 const Messages = ({ user }) => {
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
     const [messages, setMessages] = useState([]);
     const [selectedChat, setSelectedChat] = useState(null);
     const [chatMessages, setChatMessages] = useState([]);
@@ -119,8 +113,6 @@ const Messages = ({ user }) => {
         return () => unsubscribe();
     }, [selectedChat]);
    
-    
-
 
     const handleSendMessage = async () => {
         const message = document.getElementById('messageInput').value;

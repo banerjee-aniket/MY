@@ -1,18 +1,16 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { initializeApp } from 'firebase/app';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
-import { firebaseConfig } from '../firebase';
+import { app } from '../firebase';
 
 const Login = () => {
     const navigate = useNavigate();
-    const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
     const handleLogin = async () => {
-        const email = document.getElementById('email').value;
+         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
         try {
             await signInWithEmailAndPassword(auth, email, password);

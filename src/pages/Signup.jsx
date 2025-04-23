@@ -4,8 +4,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { getFirestore, collection, doc, setDoc } from 'firebase/firestore';
 import Card from '../components/common/Card';
-import Button from '../components/common/Button';
-import { firebaseConfig } from '../firebase';
+import { app, auth, db } from '../firebase';
 
 const Signup = () => {
     const navigate = useNavigate();

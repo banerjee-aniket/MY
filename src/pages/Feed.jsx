@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Route, Routes, BrowserRouter } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import axios from 'axios';
-import { initializeApp } from 'firebase/app';
+import { getFirestore, doc, updateDoc } from 'firebase/firestore';
+import { getDatabase, ref, orderByChild, onValue, push } from 'firebase/database';
+import { app, database, db } from '../firebase'
 import { getAuth } from 'firebase/auth';
-import { getFirestore, collection, doc, setDoc, updateDoc, getDocs } from 'firebase/firestore';
-import { getDatabase, ref, orderByChild, equalTo, onValue, push } from 'firebase/database';
-
-import { firebaseConfig } from '../firebase';
-
 
 import Home from '../pages/Home';
 import Profile from '../pages/Profile';
@@ -49,7 +46,8 @@ const Premium = ({ user, setIsPremium }) => {
             description: 'Premium Subscription',
             order_id: data.id,
             handler: async () => {
-                await firebase.firestore().collection('users').doc(user.uid).update({ isPremium: true });
+                const userRef = doc(db, 'users', user.uid);
+                await updateDoc(userRef, { isPremium: true });
                 setIsPremium(true);
                 alert('Subscribed to Premium!');
             }
@@ -77,14 +75,12 @@ const Premium = ({ user, setIsPremium }) => {
 };
 
 const Messages = ({ user }) => {
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const database = getDatabase(app);
     const [messages, setMessages] = useState([]);
     const [selectedChat, setSelectedChat] = useState(null);
     const [chatMessages, setChatMessages] = useState([]);
 
     useEffect(() => {
+
         const chatsRef = ref(database, 'chats');
         const query = orderByChild(ref(database, 'chats/participants/' + user.uid));
         const chatQuery = equalTo(chatsRef,true);
@@ -112,7 +108,6 @@ const Messages = ({ user }) => {
         
         return () => {
             if(unsubscribe) {
-                unsubscribe();
                 console.log('unsubscribed')
             }
         };
@@ -183,7 +178,7 @@ const AppRoutes = ({ user, setIsPremium, isPremium }) => {
     );
 
     return (
-        <BrowserRouter>
+        <Router>
             <AdBanner />
             <Header />
             <Routes>
@@ -200,7 +195,7 @@ const AppRoutes = ({ user, setIsPremium, isPremium }) => {
             </Routes>
             {user && <Navbar />}
             <Footer />
-        </BrowserRouter>
+        </Router>
     );
 };
 

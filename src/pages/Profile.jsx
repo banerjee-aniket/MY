@@ -1,19 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { initializeApp } from 'firebase/app'; // Import specific functions from firebase/app
-import { getFirestore, doc, getDoc } from 'firebase/firestore'; // Import specific functions from firebase/firestore
+import { doc, getDoc } from 'firebase/firestore'; // Import specific functions from firebase/firestore
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
-import { firebaseConfig } from '../firebase.js';
+import { auth, storage, db, database } from "../firebase";
 
 const Profile = ({ user }) => {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     useEffect(() => {
-        const app = initializeApp(firebaseConfig);
-       
-    
-        const db = getFirestore(app);
-
         if (user) {
             const userRef = doc(db, 'users', user.uid);
 
