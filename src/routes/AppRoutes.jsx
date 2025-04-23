@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import axios from 'axios';
 import { getFirestore,  doc, updateDoc } from 'firebase/firestore';
 import { getDatabase, ref,  onValue, push,orderByChild} from 'firebase/database';
@@ -183,18 +183,18 @@ const AppRoutes = ({ user, setIsPremium, isPremium }) => {
             <AdBanner />
             <Header />
             <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/signup" element={<Signup />} />
-                <Route path="/home" element={<Home />} />
+                <Route path="/login" element={user ? <Navigate to="/home"/> : <Login />} />
+                <Route path="/signup" element={user ? <Navigate to="/home"/> : <Signup />} />
+                <Route path="/home" element={user ? <Home user={user} /> : <Navigate to="/login" />} />
                 <Route path="/profile" element={<Profile user={user} />} />
                 <Route path="/challenge" element={<Challenge user={user} />} />
                 <Route path="/feed" element={<Feed user={user} />} />
                 <Route path="/leaderboard" element={<Leaderboard />} />
                 <Route path="/premium" element={<Premium user={user} setIsPremium={setIsPremium} />} />
                 <Route path="/messages" element={<Messages user={user} />} />
-                <Route path="/" element={<Login />} />
+                <Route path="/" element={user ? <Navigate to="/home" /> : <Navigate to="/login" />} />
             </Routes>
-            {user && <Navbar />}
+            {user && <Navbar/>}
             <Footer />
         </Router>
     );
